@@ -293,3 +293,74 @@ void imu_lidar_calibration(std::vector<Eigen::Matrix<double, 4, 4> >imu_motion,
   R = R_X;
   t = t_X;
 }
+
+void imu_lidar_file_aligment(std::string imu_file, std::string lidar_folder, 
+                             std::vector<std::pair<long long, std::vector<double> > >& imu_data,
+                             std::vector<std::string>& lidar_data)
+{
+  lidar_data = scanfolder(lidar_folder, "pcd");
+  
+}
+
+void imu_decode(std::string imu_file, std::vector<std::pair<long long, std::vector<double> > >& imu_data)
+{
+  imu_data.clear();
+  FILE *pFd_imu = fopen(imu_file.c_str(), "rb");
+  if(pFd_imu == NULL)
+  {
+    std::cout << "open imu_file failed!" << std::endl;
+    return;
+  }
+  char pchBuffer[MAX_READ_LENGTH];
+  int iRet = 0;
+  S_IMU *pstrTarget;
+  int iDataLength = sizeof(S_IMU);
+  while(1)
+  {
+    iRet= fread(pchBuffer, 1, iDataLength+9, pFd_imu);
+    if(iRet != iDataLength+9)
+    {
+        if(!feof(pFd_imu))
+        {
+            printf("<%s> Read data fail, returned len %u, expected %u, EOF = %d.\n", 
+            imu_file.c_str(), iRet, iDataLength, EOF);
+        }
+        break;
+    }
+    pstrTarget = (S_IMU *)(pchBuffer+8);
+    std::vector<double> data;
+    double lat = pstrTarget->dLatitude;
+    double lon = pstrTarget->dLongitude;
+    double alti = pstrTarget->fAltitude;
+    double roll = pstrTarget->fRollAngle;
+    double pitch = pstrTarget->fPitchAngle;
+    double yaw = pstrTarget->fHeadingAngle;
+    unsigned long long ulltime = pstrTarget->ullSystemTime;
+    data.push_back(lat);
+    data.push_back(lon);
+    data.push_back(alti);
+    data.push_back(roll);
+    data.push_back(pitch);
+    data.push_back(yaw);
+    imu_data.push_back(std::make_pair(ulltime, data));
+  }
+  fclose(pFd_imu);
+}
+
+std::vector<std::string> split(const std::string& s, const std::string& c)
+{
+  std::vector<std::string> v;
+  std::string::size_type pos1, pos2;
+  pos2 = s.find(c);
+  pos1 = 0;
+  while(std::string::npos != pos2)
+  {
+    v.push_back(s.substr(pos1, pos2-pos1));
+ 
+    pos1 = pos2 + c.size();
+    pos2 = s.find(c, pos1);
+  }
+  if(pos1 != s.length())
+    v.push_back(s.substr(pos1));
+  return v;
+}

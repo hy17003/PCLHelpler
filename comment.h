@@ -25,7 +25,38 @@
 
 
 #define rand_between(a, b) ((rand() % (b-a+1))+ a)
+#define FILE_NAME_LENGTH 128
+#define MAX_READ_LENGTH  50000
+
+#pragma pack(push, 1)
+typedef struct s_imu{
+    char reserve;
+    double dLatitude;
+    double dLongitude;
+    float fAltitude;
+    float fLateralSpeed;
+    float fLinearSpeed;
+    float fVerticalSpeed;
+    float fRollAngle;
+    float fPitchAngle;
+    float fHeadingAngle;
+    float fLinearAcceleration;
+    float fLateralAcceleration;
+    float fVerticalAcceleration;
+    float fRollSpeed;
+    float fPitchSpeed;
+    float fHeadingSpeed;
+    unsigned long long ullSystemTime;
+    char cSystemStatus;
+    char GPS_Status;
+    float fOriLinearSpeed;
+    float fSteeringAngle;
+    float fSteeringSpeed;
+} S_IMU;
+#pragma pack(pop)
+
 typedef bool(*ConditionFunc)(pcl::PointXYZ);
+
 
 std::vector<std::string> scanfolder(std::string folder, const char* ext);
 std::string get_filename_from_path(std::string str_path);
@@ -47,4 +78,11 @@ void load_matrix(std::string filename, std::vector<Eigen::Matrix<double, 4, 4> >
 void imu_lidar_calibration(std::vector<Eigen::Matrix<double, 4, 4> >imu_motion, 
                            std::vector<Eigen::Matrix<double, 4, 4> > lidar_motion,
                            Eigen::Matrix3d& R, Eigen::Vector3d& t);
+
+void imu_lidar_file_aligment(std::string imu_file, std::string lidar_folder, 
+                             std::vector<std::vector<double> >& imu_data,
+                             std::vector<std::string>& lidar_data);
+
+void imu_decode(std::string imu_file, std::vector<std::pair<long long, std::vector<double> > >& imu_data);
+
 #endif
