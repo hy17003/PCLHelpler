@@ -364,3 +364,33 @@ std::vector<std::string> split(const std::string& s, const std::string& c)
     v.push_back(s.substr(pos1));
   return v;
 }
+
+// void transform_cloud(pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_in, Eigen::Matrix<float, 3, 3> R, 
+//                Eigen::Vector3d t, pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_out)
+// {
+//   cloud_out->clear();
+//   for(int i = 0;i<cloud_in->points.size();i++)
+//   {
+//     Eigen::Vector3f v(cloud_in->points[i].x, cloud_in->points[i].y, cloud_in->points[i].z);
+//     Eigen::Vector3f r = R * v + t;
+//     cloud_out->points.push_back(pcl::PointXYZ(r[0], r[1], r[2]));
+//   }
+//   cloud_out->height = 1;
+//   cloud_out->width = cloud_out->points.size();
+//   cloud_out->is_dense = false;
+// }
+
+void transform_cloud(pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_in, Eigen::Matrix<float, 4, 4> matrix, 
+               pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_out)
+{
+  cloud_out->clear();
+  for(int i = 0;i<cloud_in->points.size();i++)
+  {
+    Eigen::Vector4f v(cloud_in->points[i].x, cloud_in->points[i].y, cloud_in->points[i].z, 1);
+    Eigen::Vector4f r = matrix * v;
+    cloud_out->points.push_back(pcl::PointXYZ(r[0] / r[3], r[1] / r[3], r[2] / r[3]));
+  }
+  cloud_out->height = 1;
+  cloud_out->width = cloud_out->points.size();
+  cloud_out->is_dense = false;
+}

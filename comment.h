@@ -57,7 +57,6 @@ typedef struct s_imu{
 
 typedef bool(*ConditionFunc)(pcl::PointXYZ);
 
-
 std::vector<std::string> scanfolder(std::string folder, const char* ext);
 std::string get_filename_from_path(std::string str_path);
 std::string get_extent_from_path(std::string str_path);
@@ -84,5 +83,13 @@ void imu_lidar_file_aligment(std::string imu_file, std::string lidar_folder,
                              std::vector<std::string>& lidar_data);
 
 void imu_decode(std::string imu_file, std::vector<std::pair<long long, std::vector<double> > >& imu_data);
+
+std::vector<std::string> split(const std::string& s, const std::string& c);
+
+void transform_cloud(pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_in, Eigen::Matrix<float, 4, 4> matrix, 
+               pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_out);
+
+// void transform_cloud(pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_in, Eigen::Matrix<float, 3, 3> R, 
+//                Eigen::Vector3d t, pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_out);
 
 #endif
