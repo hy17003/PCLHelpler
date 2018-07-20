@@ -73,7 +73,7 @@ void get_pose_of_lidar(pcl::Normal ns10, pcl::Normal ns20,
                        pcl::Normal ns12, pcl::Normal ns22, 
                        pcl::PointXYZ rp1, pcl::PointXYZ rp2,
                        double* matrix);
-void load_matrix(std::string filename, std::vector<Eigen::Matrix<double, 4, 4> >& matrixs);
+void load_matrix(std::string filename, std::vector<Eigen::Matrix<double, 4, 4> >& matrixs, int iColBegin = 0, int iRowBegin = 0);
 void imu_lidar_calibration(std::vector<Eigen::Matrix<double, 4, 4> >imu_motion, 
                            std::vector<Eigen::Matrix<double, 4, 4> > lidar_motion,
                            Eigen::Matrix3d& R, Eigen::Vector3d& t);

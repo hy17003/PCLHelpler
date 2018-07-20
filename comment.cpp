@@ -230,15 +230,22 @@ void get_pose_of_lidar(pcl::Normal ns10, pcl::Normal ns20,
   matrix[15] = 1;
 }
 
-
-void load_matrix(std::string filename, std::vector<Eigen::Matrix<double, 4, 4> >& matrixs)
+void load_matrix(std::string filename, std::vector<Eigen::Matrix<double, 4, 4> >& matrixs,  int iColBegin, int iRowBegin)
 {
   matrixs.clear();
   FILE *fp = fopen(filename.c_str(), "r");
   int i = 0;
+  long c;
+  while(i < iRowBegin && (c=fgetc(fp))!=EOF){if (c=='\n')i++;}
   while(1)
   {
     double m[16];
+    i = 0;
+    while(i < iColBegin)
+    {
+      if(1 != fscanf(fp, "%ld ", &c))break;
+      i++;
+    }
     if(16 != fscanf(fp, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n", 
                                 &(m[0]), &(m[1]), &(m[2]), &(m[3]), 
                                 &(m[4]), &(m[5]), &(m[6]), &(m[7]),  
