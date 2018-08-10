@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <stdio.h>
+#include <iostream>
+#include <vector>
+#include <Eigen/Core>
+#include <Eigen/Core>
+
+using namespace std;
 
 std::vector<std::string> scanfolder(std::string folder, const char* ext)
 {
@@ -100,10 +107,10 @@ void get_normal_of_plane(pcl::ModelCoefficients coefficients, pcl::Normal& norma
   float nn = sqrtf(normal.normal_x * normal.normal_x + normal.normal_y * normal.normal_y + normal.normal_z * normal.normal_z);
   normal.normal_x /= nn;
   normal.normal_y /= nn;
-  normal.normal_z /= nn; 
+  normal.normal_z /= nn;
 }
 
-void plane_detect(pcl::PointCloud<pcl::PointXYZ>::Ptr& origin_cloud, std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr>& vcPlanes, 
+void plane_detect(pcl::PointCloud<pcl::PointXYZ>::Ptr& origin_cloud, std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr>& vcPlanes,
         std::vector<pcl::ModelCoefficients::Ptr>& vcCoefficients, int maxPlaneCount)
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>());
@@ -139,9 +146,9 @@ void plane_detect(pcl::PointCloud<pcl::PointXYZ>::Ptr& origin_cloud, std::vector
 pcl::PointXYZ get_juntion_of_3planes(pcl::ModelCoefficients c1, pcl::ModelCoefficients c2, pcl::ModelCoefficients c3)
 {
   Eigen::Matrix3d A;
-  A << c1.values[0],c1.values[1],c1.values[2], 
-       c2.values[0],c2.values[1],c2.values[2], 
-       c3.values[0],c3.values[1],c3.values[2]; 
+  A << c1.values[0],c1.values[1],c1.values[2],
+       c2.values[0],c2.values[1],c2.values[2],
+       c3.values[0],c3.values[1],c3.values[2];
   Eigen::Vector3d b(-c1.values[3],-c2.values[3],-c3.values[3]);
   Eigen::Vector3d x = A.colPivHouseholderQr().solve(b);
   pcl::PointXYZ pt;
@@ -163,7 +170,7 @@ double get_angle_of_vectors(pcl::Normal n1, pcl::Normal n2)
 
 void get_pose_of_lidar(pcl::Normal ns10, pcl::Normal ns20,
                        pcl::Normal ns11, pcl::Normal ns21,
-                       pcl::Normal ns12, pcl::Normal ns22, 
+                       pcl::Normal ns12, pcl::Normal ns22,
                        pcl::PointXYZ rp1, pcl::PointXYZ rp2,
                        double* matrix)
 {
@@ -246,10 +253,10 @@ void load_matrix(std::string filename, std::vector<Eigen::Matrix<double, 4, 4> >
       if(1 != fscanf(fp, "%ld ", &c))break;
       i++;
     }
-    if(16 != fscanf(fp, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n", 
-                                &(m[0]), &(m[1]), &(m[2]), &(m[3]), 
-                                &(m[4]), &(m[5]), &(m[6]), &(m[7]),  
-                                &(m[8]), &(m[9]), &(m[10]), &(m[11]), 
+    if(16 != fscanf(fp, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
+                                &(m[0]), &(m[1]), &(m[2]), &(m[3]),
+                                &(m[4]), &(m[5]), &(m[6]), &(m[7]),
+                                &(m[8]), &(m[9]), &(m[10]), &(m[11]),
                                 &(m[12]), &(m[13]), &(m[14]), &(m[15])))
                                 break;
     Eigen::Matrix<double, 4, 4> matrix;
@@ -259,7 +266,7 @@ void load_matrix(std::string filename, std::vector<Eigen::Matrix<double, 4, 4> >
   fclose(fp);
 }
 
-void imu_lidar_calibration(std::vector<Eigen::Matrix<double, 4, 4> >imu_motion, 
+void imu_lidar_calibration(std::vector<Eigen::Matrix<double, 4, 4> >imu_motion,
                            std::vector<Eigen::Matrix<double, 4, 4> > lidar_motion,
                            Eigen::Matrix3d& R, Eigen::Vector3d& t)
 {
@@ -293,20 +300,23 @@ void imu_lidar_calibration(std::vector<Eigen::Matrix<double, 4, 4> >imu_motion,
   I.setIdentity();
   for(int i = 0;i<count;i++)
   {
-      C.block(i*3, 0, 3, 3) = I - R_A[i];
-      d.block(i*3, 0, 3, 1) = t_A[i] - R_X*t_B[i];
+      Eigen::Matrix3d A = R_A[i];
+      Eigen::Vector3d B = t_B[i];
+
+      C.block(i*3, 0, 3, 3) = I - A;
+      d.block(i*3, 0, 3, 1) = t_A[i] - R_X*B;
   }
   Eigen::Vector3d t_X = (C.transpose()*C).inverse()*(C.transpose()*d);
   R = R_X;
   t = t_X;
 }
 
-void imu_lidar_file_aligment(std::string imu_file, std::string lidar_folder, 
+void imu_lidar_file_aligment(std::string imu_file, std::string lidar_folder,
                              std::vector<std::pair<long long, std::vector<double> > >& imu_data,
                              std::vector<std::string>& lidar_data)
 {
   lidar_data = scanfolder(lidar_folder, "pcd");
-  
+
 }
 
 void imu_decode(std::string imu_file, std::vector<std::pair<long long, std::vector<double> > >& imu_data)
@@ -329,7 +339,7 @@ void imu_decode(std::string imu_file, std::vector<std::pair<long long, std::vect
     {
         if(!feof(pFd_imu))
         {
-            printf("<%s> Read data fail, returned len %u, expected %u, EOF = %d.\n", 
+            printf("<%s> Read data fail, returned len %u, expected %u, EOF = %d.\n",
             imu_file.c_str(), iRet, iDataLength, EOF);
         }
         break;
@@ -363,7 +373,7 @@ std::vector<std::string> split(const std::string& s, const std::string& c)
   while(std::string::npos != pos2)
   {
     v.push_back(s.substr(pos1, pos2-pos1));
- 
+
     pos1 = pos2 + c.size();
     pos2 = s.find(c, pos1);
   }
@@ -372,22 +382,8 @@ std::vector<std::string> split(const std::string& s, const std::string& c)
   return v;
 }
 
-// void transform_cloud(pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_in, Eigen::Matrix<float, 3, 3> R, 
-//                Eigen::Vector3d t, pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_out)
-// {
-//   cloud_out->clear();
-//   for(int i = 0;i<cloud_in->points.size();i++)
-//   {
-//     Eigen::Vector3f v(cloud_in->points[i].x, cloud_in->points[i].y, cloud_in->points[i].z);
-//     Eigen::Vector3f r = R * v + t;
-//     cloud_out->points.push_back(pcl::PointXYZ(r[0], r[1], r[2]));
-//   }
-//   cloud_out->height = 1;
-//   cloud_out->width = cloud_out->points.size();
-//   cloud_out->is_dense = false;
-// }
 
-void transform_cloud(pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_in, Eigen::Matrix<float, 4, 4> matrix, 
+void transform_cloud(pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_in, Eigen::Matrix<float, 4, 4> matrix,
                pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_out)
 {
   cloud_out->clear();
@@ -400,4 +396,18 @@ void transform_cloud(pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_in, Eigen::Matri
   cloud_out->height = 1;
   cloud_out->width = cloud_out->points.size();
   cloud_out->is_dense = false;
+}
+
+bool ptInRect(cv::Point pt, cv::Rect rect)
+{
+  return (pt.x > rect.x 
+          && pt.y > rect.y 
+          && pt.x < (rect.x + rect.width)
+          && (pt.y < rect.y + rect.height)
+          );
+}
+
+bool ptInImage(int x, int y, int w, int h)
+{
+  return ptInRect(cv::Point(x, y), cv::Rect(0, 0, w, h));
 }

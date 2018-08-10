@@ -22,7 +22,7 @@
 #include <Eigen/Dense>
 #include <sophus/so3.h>
 #include <unsupported/Eigen/MatrixFunctions>
-
+#include <opencv2/opencv.hpp>
 
 #define rand_between(a, b) ((rand() % (b-a+1))+ a)
 #define FILE_NAME_LENGTH 128
@@ -88,8 +88,7 @@ std::vector<std::string> split(const std::string& s, const std::string& c);
 
 void transform_cloud(pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_in, Eigen::Matrix<float, 4, 4> matrix, 
                pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_out);
-
-// void transform_cloud(pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_in, Eigen::Matrix<float, 3, 3> R, 
-//                Eigen::Vector3d t, pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_out);
+bool ptInRect(cv::Point pt, cv::Rect rect);
+bool ptInImage(int x, int y, int w, int h);
 
 #endif

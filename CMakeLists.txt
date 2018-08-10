@@ -1,10 +1,9 @@
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-#set(CMAKE_BUILD_TYPE Release)
-project(test)
+cmake_minimum_required(VERSION 2.8.4)
+project(lidar2image)
 
-include_directories("/usr/local/include/eigen3")
+set(CMAKE_CXX_STANDARD 11)
 
-find_package(PCL 1.2 REQUIRED)
+find_package(PCL 1.7 REQUIRED)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 
@@ -15,9 +14,13 @@ link_directories(${OpenCV_LIBRARY_DIRS})
 find_package(Sophus REQUIRED)
 include_directories(${Sophus_INCLUDE_DIRS})
 
+include_directories(/usr/local/include/eigen3)
+#include_directories("/usr/local/include/sophus")
+include_directories("../include")
+include_directories("./include")
 
-aux_source_directory(. SRC_LIST)
+aux_source_directory(src SRC_LIST)
 add_executable(${PROJECT_NAME} ${SRC_LIST})
-target_link_libraries(test ${PCL_LIBRARIES})
-target_link_libraries(test ${OpenCV_LIBS})
-target_link_libraries(test ${Sophus_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(${PROJECT_NAME} ${Sophus_LIBRARIES})
